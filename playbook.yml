@@ -1,0 +1,67 @@
+# vim: ft=yaml
+
+- name: thugcraft minecraft server provisioning
+  hosts: all
+  become: true
+  gather_facts: no
+  pre_tasks:
+  - name: 'install python2'
+    raw: sudo apt-get -y install python-simplejson
+
+  tasks:
+  - name: add users
+    user:
+      name: '{{ item }}'
+      group: sudo
+      shell: /bin/bash
+    with_items:
+      - heidar
+      - dabb
+
+  - name: add user mc
+    user:
+      name: mc
+      shell: /bin/bash
+
+  - name: add ssh public keys
+    authorized_key:
+      user: '{{ item }}'
+      state: present
+      key: https://github.com/{{ 'item' }}.keys
+    with_items:
+      - dabb
+      - heidar
+
+
+  # Add users: heidar/dabb/
+  #  32  apt-get install htop
+  #  33  apt-get install iotop
+  #  35  apt-get install munin munin-node
+  #  36  apt-get install nginx
+  #  38  ufw default deny incoming
+  #  39  ufw default allow outgoing
+  #  40  ufw allow ssh
+  #  41  ufw allow http
+  #  42  ufw allow https
+  #  43  ufw allow 25565
+  #  44  apt-get install software-properties-common
+  #  45  add-apt-repository ppa:webupd8team/java
+  #  46  apt-get update
+  #  47  apt-get install oracle-java8-installer
+  #  48  apt install oracle-java8-set-default
+  #  49  apt-get install git
+  #  50  apt-get install perl libjson-perl python make wget rdiff-backup rsync socat iptables
+  #  51  vim /etc/apt/sources.list
+  #  53  apt-get install vim
+  #  54  vim /etc/apt/sources.list
+  #  55  apt-get update
+  #  56  wget -O - https://overviewer.org/debian/overviewer.gpg.asc | sudo apt-key add -
+  #  57  apt-get install minecraft-overviewer
+  #  62  git clone https://github.com/MinecraftServerControl/mscs.git
+  #  64  cd mscs/
+  #  65  make install
+  #  69  apt-get install letsencrypt
+  #  74  vim munin.conf
+  #  87  ln -s ../sites-available/thugcraft.club .
+  #  93  mkdir -p /var/www/thugcraft.club/public_html
+  # 107  service nginx restart
