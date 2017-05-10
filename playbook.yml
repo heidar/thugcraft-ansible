@@ -18,11 +18,6 @@
       - heidar
       - dabb
 
-  - name: add user mc
-    user:
-      name: mc
-      shell: /bin/bash
-
   - name: add ssh public keys
     authorized_key:
       user: '{{ item }}'
@@ -37,7 +32,7 @@
       repo: ppa:webupd8team/java
       state: present
 
-  - name: accept Java 8 License
+  - name: accept java 8 License
     become: yes
     debconf: name='oracle-java8-installer' question='shared/accepted-oracle-license-v1-1' value='true' vtype='select'
 
@@ -92,12 +87,40 @@
     ufw:
       state: enabled
 
-  #  62  git clone https://github.com/MinecraftServerControl/mscs.git
-  #  64  cd mscs/
-  #  65  make install
-  #
-  #  74  vim munin.conf
-  #  87  ln -s ../sites-available/thugcraft.club .
-  #  93  mkdir -p /var/www/thugcraft.club/public_html
-  #
-  # 107  service nginx restart
+  - name: create website directory
+    file: path=/var/www/thugcraft.club/public_html state=directory
+
+  - name: copy website over
+    git:
+      repo: https://github.com/heidar/thugcraft-website.git
+      dest: /var/www/thugcraft.club/public_html
+
+  - name: download mscs release
+    git:
+      repo: https://github.com/MinecraftServerControl/mscs.git
+      dest: /root/mscs
+      version: v.16.06.00
+
+  - name: check if mscs is installed
+    stat:
+      path: /opt/mscs
+    register: mscs
+
+  - name: install mscs
+    make:
+      chdir: /root/mscs
+      target: install
+    when: not mscs.stat.exists
+
+  - name: copy nginx config
+    copy:
+      src: thugcraft.club.nginx.conf
+      dest: /etc/nginx/sites-enabled/thugcraft.club
+
+  - name: create letsencrypt certificates
+  # TODO
+
+  - name: restart nginx
+    service:
+      name: nginx
+      state: restarted
