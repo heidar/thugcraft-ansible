@@ -67,5 +67,10 @@ Vagrant.configure("2") do |config|
   # documentation for more information about their specific syntax and use.
   config.vm.provision "ansible" do |ansible|
     ansible.playbook = "playbook.yml"
+    ansible.host_vars = {
+      "host1" => {
+        "letsencrypt_environment" => "--staging"
+      }
+    }
   end
 end

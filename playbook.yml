@@ -40,10 +40,10 @@
     apt:
       name: '{{ item }}'
       state: present
-      cache_valid_time: 3600
+      update_cache: yes
     with_items:
       - htop
-      - itop
+      - iotop
       - munin
       - munin-node
       - nginx
@@ -58,7 +58,7 @@
       - socat
       - iptables
       - vim
-      - letsencrypt
+      - certbot
       - software-properties-common
       - oracle-java8-installer
       - oracle-java8-set-default
@@ -118,7 +118,9 @@
       dest: /etc/nginx/sites-enabled/thugcraft.club
 
   - name: create letsencrypt certificates
-  # TODO
+    command: certbot certonly --standalone -m yo@thugcraft.club --agree-tos --non-interactive -d thugcraft.club -d www.thugcraft.club '{{ letsencrypt_environment }}'
+    args:
+      creates: /etc/letsencrypt/live/thugcraft.club/privkey.pem
 
   - name: restart nginx
     service:
